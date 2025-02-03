@@ -8,54 +8,69 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use App\Services\PostService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-  public function __construct(private PostService $postService)
+  public function __construct(private PostService $service)
   {
   }
 
   public function index(): JsonResponse
   {
-    $posts = $this->postService->getPaginatedPosts();
-    return response()->json($posts);
+    return $this->executeAction(function () {
+      $posts = $this->service->getPaginatedPosts();
+      return $this->successResponse($posts, 'Posts retrieved successfully');
+    });
   }
 
-  public function store(StorePostRequest $request): JsonResponse
+  public function store(Request $request): JsonResponse
   {
-    $postDTO = PostDTO::fromArray([
-      ...$request->validated(),
-      'user_id' => auth()->id()
-    ]);
+    return $this->executeAction(function () use ($request) {
+      $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+        'status' => 'required|in:draft,published',
+      ]);
 
-    $post = $this->postService->createPost($postDTO);
-    return response()->json($post, Response::HTTP_CREATED);
+      $validated['user_id'] = auth()->user()->id;
+      $post = $this->service->createPost(PostDTO::fromRequest($validated));
+
+      return $this->createdResponse($post);
+    });
   }
 
   public function show(Post $post): JsonResponse
   {
-    return response()->json($post);
+    return $this->executeAction(function () use ($post) {
+      return $this->successResponse($post, 'Post retrieved successfully');
+    });
   }
 
-  public function update(UpdatePostRequest $request, Post $post): JsonResponse
+  public function update(Request $request, Post $post): JsonResponse
   {
-    $this->authorize('update', $post);
+    return $this->executeAction(function () use ($request, $post) {
+      $this->authorize('update', $post);
 
-    $postDTO = PostDTO::fromArray([
-      ...$request->validated(),
-      'user_id' => $post->user_id
-    ]);
+      $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+        'status' => 'required|in:draft,published',
+      ]);
 
-    $this->postService->updatePost($post, $postDTO);
-    return response()->json($post);
+      $post = $this->service->updatePost($post, PostDTO::fromRequest($validated));
+
+      return $this->successResponse($post, 'Post updated successfully');
+    });
   }
 
   public function destroy(Post $post): JsonResponse
   {
-    $this->authorize('delete', $post);
-
-    $this->postService->deletePost($post);
-    return response()->json(null, Response::HTTP_NO_CONTENT);
+    return $this->executeAction(function () use ($post) {
+      $this->authorize('delete', $post);
+      
+      $this->service->deletePost($post);
+      return $this->deletedResponse();
+    });
   }
 }

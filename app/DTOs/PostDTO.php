@@ -15,7 +15,7 @@ class PostDTO
   ) {
   }
 
-  public static function fromArray(array $data): self
+  public static function fromRequest(array $data): self
   {
     return new self(
       id: $data['id'] ?? null,
