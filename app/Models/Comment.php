@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Traits\Likeable;
 
 class Comment extends Model
 {
+    use Likeable;
+
     protected $fillable = [
         'parent_id',
         'user_id',
