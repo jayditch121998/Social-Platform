@@ -15,21 +15,24 @@ class Controller extends BaseController
 	/**
 	 * Return success response
 	 */
-	protected function successResponse(mixed $data, string $message = '', int $code = 200): JsonResponse
+	protected function successResponse($data = null, string $message = 'Success', int $code = 200): JsonResponse
 	{
 		return response()->json([
-			'data' => $data,
-			'message' => $message
+			'success' => true,
+			'message' => $message,
+			'data' => $data
 		], $code);
 	}
 
 	/**
 	 * Return error response
 	 */
-	protected function errorResponse(string $message, int $code = 500): JsonResponse
+	protected function errorResponse(string $message = 'Error', int $code = 400, $errors = null): JsonResponse
 	{
 		return response()->json([
-			'error' => $message
+			'success' => false,
+			'message' => $message,
+			'errors' => $errors
 		], $code);
 	}
 
@@ -43,5 +46,15 @@ class Controller extends BaseController
 		} catch (Throwable $th) {
 			return $this->errorResponse($th->getMessage());
 		}
+	}
+
+	protected function createdResponse($data = null, string $message = 'Created successfully'): JsonResponse
+	{
+		return $this->successResponse($data, $message, 201);
+	}
+
+	protected function deletedResponse(string $message = 'Deleted successfully'): JsonResponse
+	{
+		return $this->successResponse(null, $message, 204);
 	}
 }
