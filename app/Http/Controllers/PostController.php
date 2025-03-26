@@ -16,8 +16,8 @@ class PostController extends Controller
   public function index(): JsonResponse
   {
     return $this->executeAction(function () {
-      $posts = $this->service->getPaginatedPosts();
-      return $this->successResponse($posts, 'Posts retrieved successfully');
+      $get_posts = $this->service->getPaginatedPosts();
+      return $this->successResponse($get_posts, 'Posts retrieved successfully');
     });
   }
 
