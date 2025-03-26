@@ -17,6 +17,7 @@ class PostController extends Controller
   {
     return $this->executeAction(function () {
       $get_posts = $this->service->getPaginatedPosts();
+      
       return $this->successResponse($get_posts, 'Posts retrieved successfully');
     });
   }
