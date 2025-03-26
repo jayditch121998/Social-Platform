@@ -3,17 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\DTOs\PostDTO;
-use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use App\Services\PostService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
-{
-  public function __construct(private PostService $service)
-  {
+{ 
+  public function __construct(private PostService $service) {
   }
 
   public function index(): JsonResponse
